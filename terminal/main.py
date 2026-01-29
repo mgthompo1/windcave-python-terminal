@@ -97,9 +97,9 @@ class POSApp:
         )
         self.category_bar.container.set_pos(0, 44)
 
-        # Product area (320x452 - 44 header - 40 categories - 150 cart = 218)
+        # Product area (320x452 - 44 header - 40 categories - 140 cart = 228)
         product_container = lv.obj(self.screen)
-        product_container.set_size(320, 218)
+        product_container.set_size(320, 228)
         product_container.set_pos(0, 84)
         product_container.set_style_bg_opa(lv.OPA.TRANSP, 0)
         product_container.set_style_border_width(0, 0)
@@ -114,11 +114,11 @@ class POSApp:
 
         # Cart panel
         self.cart_panel = CartPanel(
-            self.screen, 320, 150,
+            self.screen, 320, 140,
             on_pay=self._on_pay,
             on_item_click=self._on_cart_item_click
         )
-        self.cart_panel.container.set_pos(0, 302)
+        self.cart_panel.container.set_pos(0, 312)
 
     def _build_widescreen(self):
         """Build UI for 8" display (800x452 usable area)"""

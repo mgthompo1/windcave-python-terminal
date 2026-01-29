@@ -233,7 +233,14 @@ class POSSimulator {
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </button>
-                    <div class="status-indicator"></div>
+                    <div class="status-indicator">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success);">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                        </svg>
+                    </div>
                     <div class="terminal-time">12:00</div>
                 </div>
             </div>
@@ -254,7 +261,7 @@ class POSSimulator {
                     ${filteredProducts.map(product => {
                         const cartCount = this.getProductCartCount(product.id);
                         return `
-                        <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
+                        <button class="product-btn" data-product-id="${product.id}" style="--item-color: ${product.color}">
                             <div class="product-name">${product.name}</div>
                             <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
                             ${cartCount > 0 ? `<div class="product-badge">${cartCount}</div>` : ''}
@@ -282,9 +289,10 @@ class POSSimulator {
                 <div class="cart-divider"></div>
                 <div class="cart-total-row">
                     <span class="cart-total-label">Total</span>
-                    <span class="cart-total-amount" style="font-size: 28px;">$${this.getTotal().toFixed(2)}</span>
+                    <span class="cart-total-amount">$${this.getTotal().toFixed(2)}</span>
                 </div>
-                <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>PAY</button>
+                
+                <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>Charge Card</button>
             </div>
         `;
 
@@ -297,7 +305,7 @@ class POSSimulator {
         const tax = subtotal * this.taxRate;
         const total = subtotal + tax;
 
-        // CHU200TW: 800x452 usable (28px reserved for system status)
+        // CHU200TW: 800x452 usable
         container.innerHTML = `
             <div class="terminal-header" style="height: 52px;">
                 <div class="terminal-title" style="font-size: 20px;">WINDCAVE POS</div>
@@ -308,7 +316,14 @@ class POSSimulator {
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </button>
-                    <div class="status-indicator"></div>
+                    <div class="status-indicator">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success);">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                        </svg>
+                    </div>
                     <div class="terminal-time">12:00</div>
                 </div>
             </div>
@@ -330,7 +345,7 @@ class POSSimulator {
                         ${filteredProducts.map(product => {
                             const cartCount = this.getProductCartCount(product.id);
                             return `
-                            <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
+                            <button class="product-btn" data-product-id="${product.id}" style="--item-color: ${product.color}">
                                 <div class="product-name">${product.name}</div>
                                 <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
                                 ${cartCount > 0 ? `<div class="product-badge">${cartCount}</div>` : ''}
@@ -340,7 +355,7 @@ class POSSimulator {
                     </div>
                 </div>
             </div>
-            <div class="cart-panel-wide">
+            <div class="cart-panel-wide" style="position: absolute; right: 0; top: 52px; width: 280px; bottom: 0; border-left: 1px solid var(--divider); background: var(--bg-primary); display: flex; flex-direction: column;">
                 <div class="cart-header-wide">
                     <div class="cart-title-wide">Current Order</div>
                     <div class="cart-items-count">${this.getCartItemCount()} items</div>
@@ -364,9 +379,16 @@ class POSSimulator {
                 <div class="cart-summary">
                     <div class="cart-summary-total">
                         <span class="cart-summary-label">Total</span>
-                        <span class="cart-summary-value" style="font-size: 28px;">$${total.toFixed(2)}</span>
+                        <span class="cart-summary-value">$${total.toFixed(2)}</span>
                     </div>
-                    <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>PAY</button>
+                    
+                    <div class="payment-tools-grid">
+                        <button class="text-tool-btn">Cash</button>
+                        <button class="text-tool-btn">Split</button>
+                        <button class="text-tool-btn">Link</button>
+                    </div>
+
+                    <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>Charge Card</button>
                 </div>
             </div>
         `;
