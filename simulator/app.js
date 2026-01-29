@@ -192,14 +192,14 @@ class POSSimulator {
         // CHU200TxC / MTM300-C: 320x452 usable (28px reserved for system status)
         container.innerHTML = `
             <div class="terminal-header" style="height: 44px;">
-                <div class="terminal-title">WINDCAVE POS</div>
+                <div class="terminal-title" style="font-size: 20px;">WINDCAVE POS</div>
                 <div class="terminal-status">
                     <button class="settings-btn" title="Settings">⚙️</button>
                     <div class="status-indicator"></div>
                     <div class="terminal-time">12:00</div>
                 </div>
             </div>
-            <div class="category-bar" style="height: 40px;">
+            <div class="category-bar" style="height: 44px;">
                 <button class="category-btn ${!this.activeCategory ? 'active' : ''}" data-category="">
                     <span class="category-icon">🏪</span>
                     All
@@ -211,14 +211,18 @@ class POSSimulator {
                     </button>
                 `).join('')}
             </div>
-            <div class="product-container" style="height: 218px;">
+            <div class="product-container" style="height: 214px;">
                 <div class="product-grid">
-                    ${filteredProducts.map(product => `
+                    ${filteredProducts.map(product => {
+                        const cartItem = this.cart.find(i => i.id === product.id);
+                        return `
                         <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
                             <div class="product-name">${product.name}</div>
-                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                            <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
+                            ${cartItem ? `<div class="product-badge">${cartItem.qty}</div>` : ''}
                         </button>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             </div>
             <div class="cart-panel">
@@ -240,7 +244,7 @@ class POSSimulator {
                 <div class="cart-divider"></div>
                 <div class="cart-total-row">
                     <span class="cart-total-label">Total</span>
-                    <span class="cart-total-amount">$${this.getTotal().toFixed(2)}</span>
+                    <span class="cart-total-amount" style="font-size: 28px;">$${this.getTotal().toFixed(2)}</span>
                 </div>
                 <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>TAP TO PAY</button>
             </div>
@@ -258,7 +262,7 @@ class POSSimulator {
         // CHU200TW: 800x452 usable (28px reserved for system status)
         container.innerHTML = `
             <div class="terminal-header" style="height: 52px;">
-                <div class="terminal-title">WINDCAVE POS</div>
+                <div class="terminal-title" style="font-size: 20px;">WINDCAVE POS</div>
                 <div class="terminal-status">
                     <button class="settings-btn" title="Settings">⚙️</button>
                     <div class="status-indicator"></div>
@@ -266,7 +270,7 @@ class POSSimulator {
                 </div>
             </div>
             <div class="left-panel" style="position: absolute; left: 0; top: 52px; width: 520px; bottom: 0;">
-                <div class="category-bar">
+                <div class="category-bar" style="height: 50px;">
                     <button class="category-btn ${!this.activeCategory ? 'active' : ''}" data-category="">
                         <span class="category-icon">🏪</span>
                         All
@@ -280,12 +284,16 @@ class POSSimulator {
                 </div>
                 <div class="product-container" style="height: calc(100% - 50px);">
                     <div class="product-grid">
-                        ${filteredProducts.map(product => `
+                        ${filteredProducts.map(product => {
+                            const cartItem = this.cart.find(i => i.id === product.id);
+                            return `
                             <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
                                 <div class="product-name">${product.name}</div>
-                                <div class="product-price">$${product.price.toFixed(2)}</div>
+                                <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
+                                ${cartItem ? `<div class="product-badge">${cartItem.qty}</div>` : ''}
                             </button>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             </div>
@@ -298,27 +306,19 @@ class POSSimulator {
                     ${this.cart.length === 0 ?
                         '<div class="empty-cart">Tap items to add to order</div>' :
                         this.cart.map(item => `
-                            <div class="cart-item-row">
-                                <div class="cart-item-qty">${item.qty}</div>
-                                <div class="cart-item-name">${item.name}</div>
-                                <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
-                                <button class="cart-item-remove" data-remove-id="${item.id}">×</button>
+                            <div class="cart-item-row" style="padding: 8px; margin-bottom: 8px;">
+                                <div class="cart-item-qty" style="background: var(--accent); color: var(--bg-primary);">${item.qty}</div>
+                                <div class="cart-item-name" style="margin-left: 10px;">${item.name}</div>
+                                <div class="cart-item-price" style="margin-right: 10px;">$${(item.price * item.qty).toFixed(2)}</div>
+                                <button class="cart-item-remove" data-remove-id="${item.id}" style="background: rgba(255,82,82,0.2); color: var(--danger); width: 30px; height: 30px; border-radius: 15px;">×</button>
                             </div>
                         `).join('')
                     }
                 </div>
                 <div class="cart-summary">
-                    <div class="cart-summary-row">
-                        <span class="cart-summary-label">Subtotal</span>
-                        <span class="cart-summary-value">$${subtotal.toFixed(2)}</span>
-                    </div>
-                    <div class="cart-summary-row">
-                        <span class="cart-summary-label">GST (15%)</span>
-                        <span class="cart-summary-value">$${tax.toFixed(2)}</span>
-                    </div>
                     <div class="cart-summary-total">
                         <span class="cart-summary-label">Total</span>
-                        <span class="cart-summary-value">$${total.toFixed(2)}</span>
+                        <span class="cart-summary-value" style="font-size: 28px;">$${total.toFixed(2)}</span>
                     </div>
                     <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>TAP TO PAY</button>
                 </div>

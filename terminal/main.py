@@ -20,7 +20,8 @@ from config import (
 from pos_ui import (
     Theme, Styles,
     Header, CategoryBar, ProductGrid,
-    CartPanel, PaymentScreen
+    CartPanel, CartPanelWide, PaymentScreen,
+    Notification
 )
 
 # Try to import Windcave-specific modules
@@ -156,7 +157,7 @@ class POSApp:
         )
 
         # Cart panel (right side)
-        self.cart_panel = CartPanel(
+        self.cart_panel = CartPanelWide(
             self.screen, 280, 400,
             on_pay=self._on_pay,
             on_item_click=self._on_cart_item_click
@@ -190,6 +191,9 @@ class POSApp:
             self.settings = data.get('settings', {})
             self.last_sync = time.ticks_ms()
             print(f"[POS] Synced {len(self.products)} products")
+            Notification(self.screen, "Sync Complete", style="success")
+        else:
+            Notification(self.screen, "Sync Failed", style="error")
         response.close()
 
     def _load_demo_data(self):
@@ -226,6 +230,9 @@ class POSApp:
         self.category_bar.set_categories(self.categories)
         self._filter_products()
         self._update_cart()
+        
+        # Update badges on initial load/refresh
+        self.product_grid.update_badges(self.cart)
 
     def _filter_products(self):
         """Filter products by active category"""
@@ -235,6 +242,8 @@ class POSApp:
             filtered = self.products
 
         self.product_grid.set_products(filtered)
+        # Ensure badges are shown for the new set of products
+        self.product_grid.update_badges(self.cart)
 
     def _update_cart(self):
         """Update cart display"""
@@ -247,7 +256,7 @@ class POSApp:
         """Handle settings button press"""
         # TODO: Show settings screen
         print("[POS] Settings button pressed")
-        # You can implement a settings overlay here
+        Notification(self.screen, "Settings not implemented", style="info")
 
     def _on_category_select(self, category_id):
         """Handle category button press"""
@@ -261,6 +270,9 @@ class POSApp:
             if item['id'] == product['id']:
                 item['qty'] += 1
                 self._update_cart()
+                self.product_grid.update_badges(self.cart)
+                # Brief notification for multi-add
+                # Notification(self.screen, f"+1 {product['name']}", duration=1000, style="success")
                 return
 
         # Add new item
@@ -271,6 +283,8 @@ class POSApp:
             'qty': 1
         })
         self._update_cart()
+        self.product_grid.update_badges(self.cart)
+        Notification(self.screen, f"Added {product['name']}", duration=1500, style="success")
 
     def _on_cart_item_click(self, item):
         """Handle cart item tap - remove one"""
@@ -281,6 +295,7 @@ class POSApp:
                     self.cart.remove(cart_item)
                 break
         self._update_cart()
+        self.product_grid.update_badges(self.cart)
 
     def _on_pay(self):
         """Handle pay button press"""
@@ -343,6 +358,7 @@ class POSApp:
         # Show success and clear cart
         self.payment_screen.show_success()
         self.cart = []
+        self.product_grid.update_badges(self.cart)
 
         # Close after delay
         # In LVGL, would use lv.timer_t

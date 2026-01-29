@@ -95,6 +95,15 @@ class Styles:
         cls.cart_item.set_pad_all(12)
         cls.cart_item.set_border_width(0)
 
+        # Cart item row (Widescreen)
+        cls.cart_item_row = lv.style_t()
+        cls.cart_item_row.init()
+        cls.cart_item_row.set_bg_color(Theme.hex(Theme.BG_CARD))
+        cls.cart_item_row.set_radius(8)
+        cls.cart_item_row.set_pad_all(8)
+        cls.cart_item_row.set_border_width(0)
+        cls.cart_item_row.set_margin_bottom(8)
+
         cls._initialized = True
 
 
@@ -116,12 +125,12 @@ class Header:
         self.title = lv.label(self.container)
         self.title.set_text("WINDCAVE POS")
         self.title.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
-        self.title.set_style_text_font(lv.font_montserrat_16, 0)
-        self.title.align(lv.ALIGN.LEFT_MID, 12, 0)
+        self.title.set_style_text_font(lv.font_montserrat_20, 0)
+        self.title.align(lv.ALIGN.LEFT_MID, 16, 0)
 
         # Settings button
         self.settings_btn = lv.button(self.container)
-        self.settings_btn.set_size(32, 32)
+        self.settings_btn.set_size(40, 40)
         self.settings_btn.set_style_bg_opa(lv.OPA.TRANSP, 0)
         self.settings_btn.set_style_border_width(0, 0)
         self.settings_btn.set_style_shadow_width(0, 0)
@@ -147,7 +156,7 @@ class Header:
         self.time_label = lv.label(self.container)
         self.time_label.set_text("12:00")
         self.time_label.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
-        self.time_label.align(lv.ALIGN.RIGHT_MID, -10, 0)
+        self.time_label.align(lv.ALIGN.RIGHT_MID, -16, 0)
 
     def set_time(self, time_str):
         self.time_label.set_text(time_str)
@@ -181,7 +190,7 @@ class CategoryBar:
 
     def _add_button(self, name, icon, cat_id, is_all=False):
         btn = lv.button(self.container)
-        btn.set_size(lv.SIZE_CONTENT, 36)
+        btn.set_size(lv.SIZE_CONTENT, 44)  # Increased touch target
         btn.add_style(Styles.category, 0)
         btn.add_style(Styles.category_active, lv.STATE.CHECKED)
         btn.add_flag(lv.obj.FLAG.CHECKABLE)
@@ -253,30 +262,83 @@ class ProductGrid:
             color = int(product['color'].replace('#', ''), 16)
             btn.set_style_bg_color(lv.color_hex(color), 0)
 
-        # Content container
-        cont = lv.obj(btn)
-        cont.set_size(lv.pct(100), lv.pct(100))
-        cont.set_style_bg_opa(lv.OPA.TRANSP, 0)
-        cont.set_style_border_width(0, 0)
-        cont.set_style_pad_all(4, 0)
-        cont.clear_flag(lv.obj.FLAG.CLICKABLE)
-        cont.set_scrollbar_mode(lv.SCROLLBAR_MODE.OFF)
+        # Gradient overlay for text readability
+        # Create a container that fills the button
+        overlay = lv.obj(btn)
+        overlay.set_size(lv.pct(100), lv.pct(100))
+        overlay.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        overlay.set_style_border_width(0, 0)
+        overlay.set_style_pad_all(0, 0)
+        overlay.clear_flag(lv.obj.FLAG.CLICKABLE)
+
+        # Add gradient to bottom half
+        grad_map = lv.grad_dsc_t()
+        grad_map.init()
+        grad_map.dir = lv.GRAD_DIR.VER
+        grad_map.stops_count = 2
+        grad_map.stops[0].color = lv.color_hex(0x000000)
+        grad_map.stops[0].opa = lv.OPA.TRANSP
+        grad_map.stops[0].frac = 128  # Start halfway
+        grad_map.stops[1].color = lv.color_hex(0x000000)
+        grad_map.stops[1].opa = lv.OPA._60
+        grad_map.stops[1].frac = 255
+
+        # Note: In LVGL 9, gradients are often handled via style properties
+        # For simplicity in this constrained environment, we'll use a semi-transparent
+        # dark panel at the bottom for the label background
+        
+        name_bg = lv.obj(btn)
+        name_bg.set_size(lv.pct(100), lv.SIZE_CONTENT)
+        name_bg.align(lv.ALIGN.TOP_LEFT, 0, 0)
+        name_bg.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        name_bg.set_style_pad_all(4, 0)
+        name_bg.set_style_border_width(0, 0)
+        name_bg.clear_flag(lv.obj.FLAG.CLICKABLE)
 
         # Name
-        name = lv.label(cont)
+        name = lv.label(name_bg)
         name.set_text(product['name'])
         name.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
         name.set_style_text_font(lv.font_montserrat_12, 0)
         name.set_long_mode(lv.label.LONG.WRAP)
         name.set_width(self.btn_size - 16)
-        name.align(lv.ALIGN.TOP_LEFT, 0, 0)
+        name.set_style_text_shadow_width(2, 0)
+        name.set_style_text_shadow_color(lv.color_hex(0x000000), 0)
+        name.set_style_text_shadow_opa(lv.OPA._50, 0)
+        
+        # Price container at bottom with dark background for contrast
+        price_bg = lv.obj(btn)
+        price_bg.set_size(lv.pct(100), 24)
+        price_bg.align(lv.ALIGN.BOTTOM_MID, 0, 0)
+        price_bg.set_style_bg_color(lv.color_hex(0x000000), 0)
+        price_bg.set_style_bg_opa(lv.OPA._20, 0)
+        price_bg.set_style_border_width(0, 0)
+        price_bg.clear_flag(lv.obj.FLAG.CLICKABLE)
 
         # Price
-        price = lv.label(cont)
+        price = lv.label(price_bg)
         price.set_text(f"${product['price']:.2f}")
         price.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
-        price.set_style_text_font(lv.font_montserrat_14, 0)
-        price.align(lv.ALIGN.BOTTOM_LEFT, 0, 0)
+        price.set_style_text_font(lv.font_montserrat_16, 0)
+        price.align(lv.ALIGN.LEFT_MID, 6, 0)
+
+        # Quantity Badge (Hidden by default)
+        badge = lv.label(btn)
+        badge.set_text("0")
+        badge.set_style_bg_color(Theme.hex(Theme.ACCENT), 0)
+        badge.set_style_text_color(Theme.hex(Theme.BG_PRIMARY), 0)
+        badge.set_style_radius(10, 0)
+        badge.set_style_bg_opa(lv.OPA.COVER, 0)
+        badge.set_style_pad_all(2, 0)
+        badge.set_size(20, 20)
+        badge.set_style_text_align(lv.TEXT_ALIGN.CENTER, 0)
+        badge.align(lv.ALIGN.TOP_RIGHT, 4, -4)
+        badge.add_flag(lv.obj.FLAG.HIDDEN)
+        
+        # Store reference to badge in the button object for easy access
+        # Note: In MicroPython LVGL, we can attach attributes to objects if we wrap them or use user_data
+        # For simplicity, we'll store a map in the class instance
+        self.badges[product['id']] = badge
 
         btn.add_event_cb(lambda e: self._on_click(product), lv.EVENT.CLICKED, None)
         self.buttons.append(btn)
@@ -292,14 +354,93 @@ class ProductGrid:
         for btn in self.buttons:
             btn.delete()
         self.buttons = []
+        self.badges = {} # Reset badge map
 
         # Add new products
         for product in products:
             self._create_product_button(product)
 
+    def update_badges(self, cart):
+        """Update active quantity badges on product buttons"""
+        # Create a map of product_id -> qty
+        cart_map = {item['id']: item['qty'] for item in cart}
+        
+        for prod_id, badge in self.badges.items():
+            if prod_id in cart_map:
+                badge.set_text(str(cart_map[prod_id]))
+                badge.clear_flag(lv.obj.FLAG.HIDDEN)
+            else:
+                badge.add_flag(lv.obj.FLAG.HIDDEN)
+
+
+class Notification:
+    """Transient toast notification"""
+    
+    def __init__(self, parent, text, duration=2000, style="info"):
+        self.container = lv.obj(parent)
+        self.container.set_style_bg_color(Theme.hex(Theme.TEXT_PRIMARY), 0) # White bg
+        self.container.set_style_bg_opa(lv.OPA._90, 0)
+        self.container.set_radius(20)
+        self.container.set_size(lv.SIZE_CONTENT, 40)
+        self.container.set_style_pad_hor(20, 0)
+        self.container.set_style_pad_ver(10, 0)
+        self.container.align(lv.ALIGN.TOP_MID, 0, 10)
+        self.container.set_style_shadow_width(10, 0)
+        self.container.set_style_shadow_opa(lv.OPA._30, 0)
+        
+        # Icon/Color mapping
+        colors = {
+            "success": Theme.SUCCESS,
+            "error": Theme.DANGER,
+            "info": Theme.BG_PRIMARY
+        }
+        icons = {
+            "success": "✓",
+            "error": "!",
+            "info": "i"
+        }
+        
+        # Side bar color
+        bar = lv.obj(self.container)
+        bar.set_size(4, 20)
+        bar.set_style_bg_color(Theme.hex(colors.get(style, Theme.BG_PRIMARY)), 0)
+        bar.align(lv.ALIGN.LEFT_MID, 0, 0)
+        
+        label = lv.label(self.container)
+        label.set_text(f"{icons.get(style, '')}  {text}")
+        label.set_style_text_color(Theme.hex(Theme.BG_PRIMARY), 0) # Black text
+        label.set_style_text_font(lv.font_montserrat_14, 0)
+        label.align(lv.ALIGN.CENTER, 4, 0)
+        
+        # Animation: Slide down
+        self.container.set_y(-50)
+        anim = lv.anim_t()
+        anim.init()
+        anim.set_var(self.container)
+        anim.set_values(-50, 10)
+        anim.set_time(300)
+        anim.set_path_cb(lv.anim_t.path_ease_out)
+        anim.set_custom_exec_cb(lambda a, v: self.container.set_y(v))
+        lv.anim_start(anim)
+        
+        # Auto close using a simple delayed animation callback or main loop check
+        # Since we can't easily rely on timers in all micropython envs without setup,
+        # we'll animate out after duration
+        
+        anim_out = lv.anim_t()
+        anim_out.init()
+        anim_out.set_var(self.container)
+        anim_out.set_values(10, -50)
+        anim_out.set_time(300)
+        anim_out.set_delay(duration)
+        anim_out.set_path_cb(lv.anim_t.path_ease_in)
+        anim_out.set_custom_exec_cb(lambda a, v: self.container.set_y(v))
+        anim_out.set_deleted_cb(lambda a: self.container.delete())
+        lv.anim_start(anim_out)
+
 
 class CartPanel:
-    """Cart display panel for compact layout"""
+    """Cart display panel for compact layout (3.5" screens)"""
 
     def __init__(self, parent, width, height, on_pay=None, on_item_click=None):
         self.on_pay = on_pay
@@ -372,7 +513,7 @@ class CartPanel:
         self.total_label = lv.label(total_cont)
         self.total_label.set_text("$0.00")
         self.total_label.set_style_text_color(Theme.hex(Theme.ACCENT), 0)
-        self.total_label.set_style_text_font(lv.font_montserrat_20, 0)
+        self.total_label.set_style_text_font(lv.font_montserrat_28, 0)
         self.total_label.align(lv.ALIGN.RIGHT_MID, 0, 0)
 
         # Pay button
@@ -431,6 +572,175 @@ class CartPanel:
             chip.add_event_cb(lambda e: self.on_item_click(item), lv.EVENT.CLICKED, None)
 
 
+class CartPanelWide:
+    """Cart display panel for widescreen layout (8" screens)"""
+
+    def __init__(self, parent, width, height, on_pay=None, on_item_click=None):
+        self.on_pay = on_pay
+        self.on_item_click = on_item_click
+        self.cart = []
+
+        self.container = lv.obj(parent)
+        self.container.set_size(width, height)
+        # Background handled by parent, this is just a container usually
+        self.container.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        self.container.set_style_pad_all(20, 0)
+        self.container.set_scrollbar_mode(lv.SCROLLBAR_MODE.OFF)
+
+        self._build_ui()
+
+    def _build_ui(self):
+        # Header
+        header = lv.obj(self.container)
+        header.set_size(lv.pct(100), 40)
+        header.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        header.set_style_border_width(0, 0)
+        header.set_style_pad_all(0, 0)
+        header.align(lv.ALIGN.TOP_LEFT, 0, 0)
+
+        cart_label = lv.label(header)
+        cart_label.set_text("Current Order")
+        cart_label.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        cart_label.set_style_text_font(lv.font_montserrat_18, 0)
+        cart_label.align(lv.ALIGN.LEFT_TOP, 0, 0)
+
+        self.count_label = lv.label(header)
+        self.count_label.set_text("0 items")
+        self.count_label.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
+        self.count_label.align(lv.ALIGN.LEFT_BOTTOM, 0, 0)
+
+        # Items list (Vertical)
+        self.items_container = lv.obj(self.container)
+        self.items_container.set_size(lv.pct(100), lv.pct(100))
+        # Adjust height to make room for header (40) and footer (140)
+        # 400 height - 40 header - 140 footer = 220
+        self.items_container.set_height(lv.pct(100))
+        self.items_container.set_y(50) # Below header
+        # Leave room for footer
+        self.items_container.set_style_pad_bottom(150, 0) 
+        self.items_container.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        self.items_container.set_style_border_width(0, 0)
+        self.items_container.set_flex_flow(lv.FLEX_FLOW.COLUMN)
+        self.items_container.set_style_pad_row(8, 0)
+        self.items_container.set_scrollbar_mode(lv.SCROLLBAR_MODE.AUTO)
+
+        # Footer (Totals + Pay) - Fixed at bottom of container
+        self.footer = lv.obj(self.container)
+        self.footer.set_size(lv.pct(100), 140)
+        self.footer.align(lv.ALIGN.BOTTOM_MID, 0, 0)
+        self.footer.set_style_bg_color(Theme.hex(Theme.BG_SECONDARY), 0) # Match bg
+        self.footer.set_style_border_width(1, 0)
+        self.footer.set_style_border_side(lv.BORDER_SIDE.TOP, 0)
+        self.footer.set_style_border_color(Theme.hex(Theme.DIVIDER), 0)
+        self.footer.set_style_pad_all(0, 0)
+        self.footer.set_style_pad_top(16, 0)
+
+        # Summary Rows
+        self.summary_cont = lv.obj(self.footer)
+        self.summary_cont.set_size(lv.pct(100), 60)
+        self.summary_cont.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        self.summary_cont.set_style_border_width(0, 0)
+        self.summary_cont.set_style_pad_all(0, 0)
+        
+        # Total
+        total_lbl = lv.label(self.summary_cont)
+        total_lbl.set_text("Total")
+        total_lbl.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        total_lbl.set_style_text_font(lv.font_montserrat_18, 0)
+        total_lbl.align(lv.ALIGN.BOTTOM_LEFT, 0, -4)
+
+        self.total_label = lv.label(self.summary_cont)
+        self.total_label.set_text("$0.00")
+        self.total_label.set_style_text_color(Theme.hex(Theme.ACCENT), 0)
+        self.total_label.set_style_text_font(lv.font_montserrat_28, 0)
+        self.total_label.align(lv.ALIGN.BOTTOM_RIGHT, 0, -4)
+
+        # Pay Button
+        self.pay_btn = lv.button(self.footer)
+        self.pay_btn.set_size(lv.pct(100), 50)
+        self.pay_btn.align(lv.ALIGN.BOTTOM_MID, 0, 0)
+        self.pay_btn.set_style_bg_color(Theme.hex(Theme.ACCENT_GREEN), 0)
+        self.pay_btn.set_style_radius(8, 0)
+        self.pay_btn.add_event_cb(self._on_pay_click, lv.EVENT.CLICKED, None)
+
+        pay_label = lv.label(self.pay_btn)
+        pay_label.set_text("TAP TO PAY")
+        pay_label.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        pay_label.set_style_text_font(lv.font_montserrat_18, 0)
+        pay_label.center()
+
+    def _on_pay_click(self, event):
+        if self.cart and self.on_pay:
+            self.on_pay()
+
+    def update(self, cart, total):
+        self.cart = cart
+        
+        # Update labels
+        count = sum(item['qty'] for item in cart)
+        self.count_label.set_text(f"{count} items")
+        self.total_label.set_text(f"${total:.2f}")
+
+        # Update List
+        self.items_container.clean()
+        
+        if not cart:
+            empty = lv.label(self.items_container)
+            empty.set_text("Tap items to add to order")
+            empty.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
+            empty.center()
+        else:
+            for item in cart:
+                self._create_row(item)
+
+    def _create_row(self, item):
+        row = lv.obj(self.items_container)
+        row.set_size(lv.pct(100), 52)
+        row.add_style(Styles.cart_item_row, 0)
+        row.clear_flag(lv.obj.FLAG.SCROLLABLE)
+
+        # Qty Circle
+        qty_bg = lv.obj(row)
+        qty_bg.set_size(28, 28)
+        qty_bg.set_style_bg_color(Theme.hex(Theme.ACCENT), 0)
+        qty_bg.set_style_radius(14, 0)
+        qty_bg.set_style_border_width(0, 0)
+        qty_bg.align(lv.ALIGN.LEFT_MID, 0, 0)
+        
+        qty_lbl = lv.label(qty_bg)
+        qty_lbl.set_text(str(item['qty']))
+        qty_lbl.set_style_text_color(Theme.hex(Theme.BG_PRIMARY), 0)
+        qty_lbl.center()
+
+        # Name
+        name_lbl = lv.label(row)
+        name_lbl.set_text(item['name'])
+        name_lbl.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        name_lbl.set_width(120)
+        name_lbl.set_long_mode(lv.label.LONG.DOT)
+        name_lbl.align(lv.ALIGN.LEFT_MID, 36, 0)
+
+        # Price
+        price_lbl = lv.label(row)
+        price_lbl.set_text(f"${(item['price'] * item['qty']):.2f}")
+        price_lbl.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        price_lbl.align(lv.ALIGN.RIGHT_MID, -40, 0)
+
+        # Remove Button (X)
+        del_btn = lv.button(row)
+        del_btn.set_size(30, 30)
+        del_btn.set_style_bg_color(Theme.hex(Theme.DANGER), 0)
+        del_btn.set_style_bg_opa(lv.OPA._20, 0)
+        del_btn.set_style_radius(15, 0)
+        del_btn.align(lv.ALIGN.RIGHT_MID, 0, 0)
+        del_btn.add_event_cb(lambda e: self.on_item_click(item) if self.on_item_click else None, lv.EVENT.CLICKED, None)
+
+        x_lbl = lv.label(del_btn)
+        x_lbl.set_text("x") # or lv.SYMBOL.CLOSE
+        x_lbl.set_style_text_color(Theme.hex(Theme.DANGER), 0)
+        x_lbl.center()
+
+
 class PaymentScreen:
     """Payment processing overlay"""
 
@@ -465,7 +775,7 @@ class PaymentScreen:
         amt = lv.label(card)
         amt.set_text(f"${amount:.2f}")
         amt.set_style_text_color(Theme.hex(Theme.ACCENT), 0)
-        amt.set_style_text_font(lv.font_montserrat_28, 0)
+        amt.set_style_text_font(lv.font_montserrat_48, 0)
         amt.align(lv.ALIGN.TOP_MID, 0, 90)
 
         # Instructions
