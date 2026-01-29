@@ -246,7 +246,7 @@ class POSSimulator {
                     <span class="cart-total-label">Total</span>
                     <span class="cart-total-amount" style="font-size: 28px;">$${this.getTotal().toFixed(2)}</span>
                 </div>
-                <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>TAP TO PAY</button>
+                <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>PAY</button>
             </div>
         `;
 
@@ -320,7 +320,7 @@ class POSSimulator {
                         <span class="cart-summary-label">Total</span>
                         <span class="cart-summary-value" style="font-size: 28px;">$${total.toFixed(2)}</span>
                     </div>
-                    <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>TAP TO PAY</button>
+                    <button class="pay-btn" ${this.cart.length === 0 ? 'disabled' : ''}>PAY</button>
                 </div>
             </div>
         `;

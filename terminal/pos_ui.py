@@ -525,7 +525,7 @@ class CartPanel:
         self.pay_btn.add_event_cb(self._on_pay_click, lv.EVENT.CLICKED, None)
 
         pay_label = lv.label(self.pay_btn)
-        pay_label.set_text("TAP TO PAY")
+        pay_label.set_text("PAY")
         pay_label.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
         pay_label.set_style_text_font(lv.font_montserrat_16, 0)
         pay_label.center()
@@ -664,7 +664,7 @@ class CartPanelWide:
         self.pay_btn.add_event_cb(self._on_pay_click, lv.EVENT.CLICKED, None)
 
         pay_label = lv.label(self.pay_btn)
-        pay_label.set_text("TAP TO PAY")
+        pay_label.set_text("PAY")
         pay_label.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
         pay_label.set_style_text_font(lv.font_montserrat_18, 0)
         pay_label.center()
