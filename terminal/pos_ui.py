@@ -101,7 +101,9 @@ class Styles:
 class Header:
     """Terminal header bar"""
 
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, width, height, on_settings=None):
+        self.on_settings = on_settings
+
         self.container = lv.obj(parent)
         self.container.set_size(width, height)
         self.container.set_style_bg_color(Theme.hex(Theme.BG_SECONDARY), 0)
@@ -115,7 +117,23 @@ class Header:
         self.title.set_text("WINDCAVE POS")
         self.title.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
         self.title.set_style_text_font(lv.font_montserrat_16, 0)
-        self.title.align(lv.ALIGN.LEFT_MID, 16, 0)
+        self.title.align(lv.ALIGN.LEFT_MID, 12, 0)
+
+        # Settings button
+        self.settings_btn = lv.button(self.container)
+        self.settings_btn.set_size(32, 32)
+        self.settings_btn.set_style_bg_opa(lv.OPA.TRANSP, 0)
+        self.settings_btn.set_style_border_width(0, 0)
+        self.settings_btn.set_style_shadow_width(0, 0)
+        self.settings_btn.align(lv.ALIGN.RIGHT_MID, -70, 0)
+
+        settings_icon = lv.label(self.settings_btn)
+        settings_icon.set_text(lv.SYMBOL.SETTINGS)
+        settings_icon.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
+        settings_icon.center()
+
+        if on_settings:
+            self.settings_btn.add_event_cb(lambda e: on_settings(), lv.EVENT.CLICKED, None)
 
         # Status LED
         self.status = lv.obj(self.container)
@@ -123,13 +141,13 @@ class Header:
         self.status.set_style_bg_color(Theme.hex(Theme.SUCCESS), 0)
         self.status.set_style_radius(5, 0)
         self.status.set_style_border_width(0, 0)
-        self.status.align(lv.ALIGN.RIGHT_MID, -50, 0)
+        self.status.align(lv.ALIGN.RIGHT_MID, -46, 0)
 
         # Time
         self.time_label = lv.label(self.container)
         self.time_label.set_text("12:00")
         self.time_label.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
-        self.time_label.align(lv.ALIGN.RIGHT_MID, -12, 0)
+        self.time_label.align(lv.ALIGN.RIGHT_MID, -10, 0)
 
     def set_time(self, time_str):
         self.time_label.set_text(time_str)

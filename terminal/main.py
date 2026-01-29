@@ -85,8 +85,8 @@ class POSApp:
 
     def _build_compact(self):
         """Build UI for 3.5" display (320x452 usable area)"""
-        # Header
-        self.header = Header(self.screen, 320, 44)
+        # Header (with settings button)
+        self.header = Header(self.screen, 320, 44, on_settings=self._on_settings)
         self.header.container.set_pos(0, 0)
 
         # Category bar
@@ -96,9 +96,9 @@ class POSApp:
         )
         self.category_bar.container.set_pos(0, 44)
 
-        # Product area (320x452 - 44 header - 40 categories - 140 cart = 228)
+        # Product area (320x452 - 44 header - 40 categories - 150 cart = 218)
         product_container = lv.obj(self.screen)
-        product_container.set_size(320, 228)
+        product_container.set_size(320, 218)
         product_container.set_pos(0, 84)
         product_container.set_style_bg_opa(lv.OPA.TRANSP, 0)
         product_container.set_style_border_width(0, 0)
@@ -113,16 +113,16 @@ class POSApp:
 
         # Cart panel
         self.cart_panel = CartPanel(
-            self.screen, 320, 140,
+            self.screen, 320, 150,
             on_pay=self._on_pay,
             on_item_click=self._on_cart_item_click
         )
-        self.cart_panel.container.set_pos(0, 312)
+        self.cart_panel.container.set_pos(0, 302)
 
     def _build_widescreen(self):
         """Build UI for 8" display (800x452 usable area)"""
-        # Header
-        self.header = Header(self.screen, 800, 52)
+        # Header (with settings button)
+        self.header = Header(self.screen, 800, 52, on_settings=self._on_settings)
         self.header.container.set_pos(0, 0)
 
         # Left panel (products)
@@ -243,6 +243,12 @@ class POSApp:
         self.cart_panel.update(self.cart, total)
 
     # Event handlers
+    def _on_settings(self):
+        """Handle settings button press"""
+        # TODO: Show settings screen
+        print("[POS] Settings button pressed")
+        # You can implement a settings overlay here
+
     def _on_category_select(self, category_id):
         """Handle category button press"""
         self.active_category = category_id

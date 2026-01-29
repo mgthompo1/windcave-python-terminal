@@ -194,6 +194,7 @@ class POSSimulator {
             <div class="terminal-header" style="height: 44px;">
                 <div class="terminal-title">WINDCAVE POS</div>
                 <div class="terminal-status">
+                    <button class="settings-btn" title="Settings">⚙️</button>
                     <div class="status-indicator"></div>
                     <div class="terminal-time">12:00</div>
                 </div>
@@ -210,7 +211,7 @@ class POSSimulator {
                     </button>
                 `).join('')}
             </div>
-            <div class="product-container" style="height: 228px;">
+            <div class="product-container" style="height: 218px;">
                 <div class="product-grid">
                     ${filteredProducts.map(product => `
                         <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
@@ -259,6 +260,7 @@ class POSSimulator {
             <div class="terminal-header" style="height: 52px;">
                 <div class="terminal-title">WINDCAVE POS</div>
                 <div class="terminal-status">
+                    <button class="settings-btn" title="Settings">⚙️</button>
                     <div class="status-indicator"></div>
                     <div class="terminal-time">12:00</div>
                 </div>
