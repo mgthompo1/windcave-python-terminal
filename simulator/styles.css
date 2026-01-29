@@ -45,7 +45,7 @@ body {
     background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
     min-height: 100vh;
     color: var(--text-primary);
-    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Layout */
@@ -251,6 +251,7 @@ body {
     position: relative;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
     border: 2px solid #1a1a1a;
+    transition: background-color 0.3s ease;
 }
 
 .terminal-chin {
@@ -511,7 +512,7 @@ body {
 .product-name {
     font-size: 12px;
     font-weight: 500;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-align: left;
     line-height: 1.3;
     display: -webkit-box;
@@ -525,7 +526,7 @@ body {
 .product-price {
     font-size: 16px; /* Updated from 14px */
     font-weight: 700;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-align: left;
     z-index: 2;
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
@@ -651,7 +652,8 @@ body {
     flex-shrink: 0;
 }
 
-/* Light mode adjustments for products */
+/* Light mode adjustments for products - REMOVED to keep cards consistent */
+/*
 [data-theme="light"] .product-btn::after {
     background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 100%);
 }
@@ -660,6 +662,7 @@ body {
 [data-theme="light"] .product-price {
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
+*/
 
 /* Fix blur from transforms */
 .terminal-frame,
@@ -752,6 +755,10 @@ body {
     flex: 1;
     font-size: 14px;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .cart-item-price {
@@ -773,6 +780,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 
 .cart-item-remove:hover {

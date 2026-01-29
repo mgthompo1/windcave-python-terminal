@@ -22,9 +22,30 @@ class Theme:
     SUCCESS = 0x4CAF50
     DIVIDER = 0x2A2A4A
 
+    # Light theme constants
+    L_BG_PRIMARY = 0xF2F2F7
+    L_BG_SECONDARY = 0FFFFFF
+    L_BG_CARD = 0FFFFFF
+    L_TEXT_PRIMARY = 0x000000
+    L_TEXT_SECONDARY = 0x8E8E93
+    L_DIVIDER = 0xC6C6C8
+
+    current_theme = "dark"
+
     @classmethod
-    def hex(cls, color):
-        return lv.color_hex(color)
+    def get_color(cls, name):
+        """Get color based on current theme"""
+        if cls.current_theme == "light":
+            light_name = f"L_{name}"
+            if hasattr(cls, light_name):
+                return getattr(cls, light_name)
+        return getattr(cls, name)
+
+    @classmethod
+    def hex(cls, color_name_or_val):
+        if isinstance(color_name_or_val, str):
+            return lv.color_hex(cls.get_color(color_name_or_val))
+        return lv.color_hex(color_name_or_val)
 
 
 class Styles:
@@ -150,6 +171,9 @@ class Header:
         self.status.set_style_bg_color(Theme.hex(Theme.SUCCESS), 0)
         self.status.set_style_radius(5, 0)
         self.status.set_style_border_width(0, 0)
+        self.status.set_style_shadow_width(8, 0)
+        self.status.set_style_shadow_color(Theme.hex(Theme.SUCCESS), 0)
+        self.status.set_style_shadow_opa(lv.OPA._80, 0)
         self.status.align(lv.ALIGN.RIGHT_MID, -46, 0)
 
         # Time
@@ -164,6 +188,7 @@ class Header:
     def set_status(self, connected):
         color = Theme.SUCCESS if connected else Theme.DANGER
         self.status.set_style_bg_color(Theme.hex(color), 0)
+        self.status.set_style_shadow_color(Theme.hex(color), 0)
 
 
 class CategoryBar:
@@ -298,7 +323,7 @@ class ProductGrid:
         # Name
         name = lv.label(name_bg)
         name.set_text(product['name'])
-        name.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        name.set_style_text_color(lv.color_hex(0xFFFFFF), 0)
         name.set_style_text_font(lv.font_montserrat_12, 0)
         name.set_long_mode(lv.label.LONG.WRAP)
         name.set_width(self.btn_size - 16)
@@ -318,7 +343,7 @@ class ProductGrid:
         # Price
         price = lv.label(price_bg)
         price.set_text(f"${product['price']:.2f}")
-        price.set_style_text_color(Theme.hex(Theme.TEXT_PRIMARY), 0)
+        price.set_style_text_color(lv.color_hex(0xFFFFFF), 0)
         price.set_style_text_font(lv.font_montserrat_16, 0)
         price.align(lv.ALIGN.LEFT_MID, 6, 0)
 
@@ -784,6 +809,34 @@ class PaymentScreen:
         instruction.set_style_text_align(lv.TEXT_ALIGN.CENTER, 0)
         instruction.set_style_text_color(Theme.hex(Theme.TEXT_SECONDARY), 0)
         instruction.align(lv.ALIGN.CENTER, 0, 20)
+
+        # Progress Bar
+        self.bar = lv.bar(card)
+        self.bar.set_size(lv.pct(80), 6)
+        self.bar.align(lv.ALIGN.CENTER, 0, 60)
+        self.bar.set_range(0, 100)
+        self.bar.set_value(0, lv.ANIM.OFF)
+        self.bar.set_style_bg_color(Theme.hex(Theme.BG_SECONDARY), 0)
+        self.bar.set_style_bg_opa(lv.OPA.COVER, 0)
+        
+        # Style the indicator (fill)
+        style_indic = lv.style_t()
+        style_indic.init()
+        style_indic.set_bg_opa(lv.OPA.COVER)
+        style_indic.set_bg_color(Theme.hex(Theme.ACCENT))
+        style_indic.set_bg_grad_color(Theme.hex(Theme.ACCENT_GREEN))
+        style_indic.set_bg_grad_dir(lv.GRAD_DIR.HOR)
+        self.bar.add_style(style_indic, lv.PART.INDICATOR)
+
+        # Animate the bar
+        anim = lv.anim_t()
+        anim.init()
+        anim.set_var(self.bar)
+        anim.set_values(0, 100)
+        anim.set_time(2000) # 2 seconds
+        anim.set_path_cb(lv.anim_t.path_linear)
+        anim.set_custom_exec_cb(lambda a, v: self.bar.set_value(v, lv.ANIM.OFF))
+        lv.anim_start(anim)
 
         # Cancel button
         cancel_btn = lv.button(card)
