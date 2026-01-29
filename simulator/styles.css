@@ -651,9 +651,22 @@ body {
     flex-shrink: 0;
 }
 
-/* Light mode gradient adjustment for products */
+/* Light mode adjustments for products */
 [data-theme="light"] .product-btn::after {
-    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%);
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 100%);
+}
+
+[data-theme="light"] .product-name,
+[data-theme="light"] .product-price {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Fix blur from transforms */
+.terminal-frame,
+.terminal-screen {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    backface-visibility: hidden;
 }
 
 .pay-btn:hover {
