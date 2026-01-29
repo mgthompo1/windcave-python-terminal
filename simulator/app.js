@@ -25,6 +25,39 @@ class POSSimulator {
     }
 
     loadDemoData(type) {
+        // Shared modifier templates
+        const coffeeModifiers = [
+            {
+                name: 'Size',
+                required: true,
+                options: [
+                    { name: 'Regular', price: 0 },
+                    { name: 'Large', price: 1.00 }
+                ]
+            },
+            {
+                name: 'Milk',
+                required: false,
+                options: [
+                    { name: 'Full Cream', price: 0 },
+                    { name: 'Skim', price: 0 },
+                    { name: 'Oat', price: 0.80 },
+                    { name: 'Almond', price: 0.80 },
+                    { name: 'Soy', price: 0.50 }
+                ]
+            },
+            {
+                name: 'Extras',
+                required: false,
+                options: [
+                    { name: 'Extra Shot', price: 0.50 },
+                    { name: 'Decaf', price: 0 },
+                    { name: 'Vanilla Syrup', price: 0.50 },
+                    { name: 'Caramel Syrup', price: 0.50 }
+                ]
+            }
+        ];
+
         const datasets = {
             coffee: {
                 categories: [
@@ -34,12 +67,12 @@ class POSSimulator {
                     { id: 'cat-4', name: 'Desserts', icon: '🍰', color: '#FF69B4' },
                 ],
                 products: [
-                    { id: 'p1', name: 'Flat White', price: 5.50, categoryId: 'cat-1', color: '#D4A574' },
-                    { id: 'p2', name: 'Cappuccino', price: 5.50, categoryId: 'cat-1', color: '#C4A484' },
-                    { id: 'p3', name: 'Long Black', price: 5.00, categoryId: 'cat-1', color: '#3C2415' },
-                    { id: 'p4', name: 'Latte', price: 5.50, categoryId: 'cat-1', color: '#E8D4B8' },
-                    { id: 'p5', name: 'Mocha', price: 6.00, categoryId: 'cat-1', color: '#5C4033' },
-                    { id: 'p6', name: 'Espresso', price: 4.00, categoryId: 'cat-1', color: '#2C1810' },
+                    { id: 'p1', name: 'Flat White', price: 5.50, categoryId: 'cat-1', color: '#D4A574', modifiers: coffeeModifiers },
+                    { id: 'p2', name: 'Cappuccino', price: 5.50, categoryId: 'cat-1', color: '#C4A484', modifiers: coffeeModifiers },
+                    { id: 'p3', name: 'Long Black', price: 5.00, categoryId: 'cat-1', color: '#3C2415', modifiers: coffeeModifiers },
+                    { id: 'p4', name: 'Latte', price: 5.50, categoryId: 'cat-1', color: '#E8D4B8', modifiers: coffeeModifiers },
+                    { id: 'p5', name: 'Mocha', price: 6.00, categoryId: 'cat-1', color: '#5C4033', modifiers: coffeeModifiers },
+                    { id: 'p6', name: 'Espresso', price: 4.00, categoryId: 'cat-1', color: '#2C1810', modifiers: coffeeModifiers },
                     { id: 'p7', name: 'Avo Toast', price: 16.00, categoryId: 'cat-2', color: '#568203' },
                     { id: 'p8', name: 'Eggs Bene', price: 22.00, categoryId: 'cat-2', color: '#FFD700' },
                     { id: 'p9', name: 'Bacon Eggs', price: 18.00, categoryId: 'cat-2', color: '#CD853F' },
@@ -219,12 +252,12 @@ class POSSimulator {
             <div class="product-container" style="height: 214px;">
                 <div class="product-grid">
                     ${filteredProducts.map(product => {
-                        const cartItem = this.cart.find(i => i.id === product.id);
+                        const cartCount = this.getProductCartCount(product.id);
                         return `
                         <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
                             <div class="product-name">${product.name}</div>
                             <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
-                            ${cartItem ? `<div class="product-badge">${cartItem.qty}</div>` : ''}
+                            ${cartCount > 0 ? `<div class="product-badge">${cartCount}</div>` : ''}
                         </button>
                         `;
                     }).join('')}
@@ -239,9 +272,9 @@ class POSSimulator {
                     ${this.cart.length === 0 ?
                         '<div class="empty-cart">Tap items to add</div>' :
                         this.cart.map(item => `
-                            <button class="cart-chip" data-cart-item-id="${item.id}">
+                            <button class="cart-chip ${item.modifierText ? 'has-mods' : ''}" data-cart-item-id="${item.id}">
                                 <span class="cart-chip-qty">${item.qty}</span>
-                                ${item.name.substring(0, 10)}
+                                ${item.name.substring(0, 10)}${item.modifierText ? '*' : ''}
                             </button>
                         `).join('')
                     }
@@ -295,12 +328,12 @@ class POSSimulator {
                 <div class="product-container" style="height: calc(100% - 50px);">
                     <div class="product-grid">
                         ${filteredProducts.map(product => {
-                            const cartItem = this.cart.find(i => i.id === product.id);
+                            const cartCount = this.getProductCartCount(product.id);
                             return `
                             <button class="product-btn" data-product-id="${product.id}" style="background: ${product.color}">
                                 <div class="product-name">${product.name}</div>
                                 <div class="product-price" style="font-size: 16px;">$${product.price.toFixed(2)}</div>
-                                ${cartItem ? `<div class="product-badge">${cartItem.qty}</div>` : ''}
+                                ${cartCount > 0 ? `<div class="product-badge">${cartCount}</div>` : ''}
                             </button>
                             `;
                         }).join('')}
@@ -316,11 +349,14 @@ class POSSimulator {
                     ${this.cart.length === 0 ?
                         '<div class="empty-cart">Tap items to add to order</div>' :
                         this.cart.map(item => `
-                            <div class="cart-item-row" style="padding: 8px; margin-bottom: 8px;">
-                                <div class="cart-item-qty" style="background: var(--accent); color: var(--bg-primary);">${item.qty}</div>
-                                <div class="cart-item-name" style="margin-left: 10px;">${item.name}</div>
-                                <div class="cart-item-price" style="margin-right: 10px;">$${(item.price * item.qty).toFixed(2)}</div>
-                                <button class="cart-item-remove" data-remove-id="${item.id}" style="background: rgba(255,82,82,0.2); color: var(--danger); width: 30px; height: 30px; border-radius: 15px;">×</button>
+                            <div class="cart-item-row ${item.modifierText ? 'has-mods' : ''}">
+                                <div class="cart-item-qty">${item.qty}</div>
+                                <div class="cart-item-details">
+                                    <div class="cart-item-name">${item.name}</div>
+                                    ${item.modifierText ? `<div class="cart-item-mods">${item.modifierText}</div>` : ''}
+                                </div>
+                                <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+                                <button class="cart-item-remove" data-remove-id="${item.id}">×</button>
                             </div>
                         `).join('')
                     }
@@ -390,27 +426,161 @@ class POSSimulator {
         return this.products.filter(p => p.categoryId === this.activeCategory);
     }
 
-    addToCart(productId) {
+    addToCart(productId, selectedModifiers = null) {
         const product = this.products.find(p => p.id === productId);
         if (!product) return;
 
-        const existingItem = this.cart.find(item => item.id === productId);
-        if (existingItem) {
-            existingItem.qty += 1;
-        } else {
-            this.cart.push({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                qty: 1
+        // If product has modifiers and none selected, show modifier modal
+        if (product.modifiers && product.modifiers.length > 0 && !selectedModifiers) {
+            this.showModifierModal(product);
+            return;
+        }
+
+        // Calculate modifier price additions
+        let modifierPrice = 0;
+        let modifierText = '';
+        if (selectedModifiers && selectedModifiers.length > 0) {
+            selectedModifiers.forEach(mod => {
+                modifierPrice += mod.price || 0;
+                if (modifierText) modifierText += ', ';
+                modifierText += mod.name;
             });
         }
+
+        // Generate unique ID for items with modifiers
+        const cartItemId = selectedModifiers
+            ? `${product.id}-${Date.now()}`
+            : product.id;
+
+        // For items without modifiers, check if already in cart
+        if (!selectedModifiers) {
+            const existingItem = this.cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.qty += 1;
+                this.updateCartDisplay();
+                return;
+            }
+        }
+
+        this.cart.push({
+            id: cartItemId,
+            productId: product.id,
+            name: product.name,
+            price: product.price + modifierPrice,
+            basePrice: product.price,
+            modifiers: selectedModifiers || [],
+            modifierText: modifierText,
+            qty: 1
+        });
 
         this.updateCartDisplay();
     }
 
-    removeFromCart(productId) {
-        const index = this.cart.findIndex(item => item.id === productId);
+    showModifierModal(product) {
+        const screen = document.getElementById('terminalScreen');
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modifier-overlay';
+
+        // Track selected options
+        const selections = {};
+        product.modifiers.forEach((mod, idx) => {
+            // Pre-select first option for required modifiers
+            if (mod.required && mod.options.length > 0) {
+                selections[idx] = [mod.options[0]];
+            } else {
+                selections[idx] = [];
+            }
+        });
+
+        const renderModal = () => {
+            // Calculate current price
+            let totalPrice = product.price;
+            Object.values(selections).flat().forEach(opt => {
+                totalPrice += opt.price || 0;
+            });
+
+            overlay.innerHTML = `
+                <div class="modifier-card">
+                    <div class="modifier-header">
+                        <div class="modifier-product-name">${product.name}</div>
+                        <div class="modifier-product-price">$${totalPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="modifier-sections">
+                        ${product.modifiers.map((mod, modIdx) => `
+                            <div class="modifier-section">
+                                <div class="modifier-section-title">
+                                    ${mod.name}
+                                    ${mod.required ? '<span class="modifier-required">Required</span>' : ''}
+                                </div>
+                                <div class="modifier-options">
+                                    ${mod.options.map((opt, optIdx) => {
+                                        const isSelected = selections[modIdx]?.some(s => s.name === opt.name);
+                                        return `
+                                            <button class="modifier-option ${isSelected ? 'selected' : ''}"
+                                                    data-mod-idx="${modIdx}"
+                                                    data-opt-idx="${optIdx}"
+                                                    data-required="${mod.required}">
+                                                <span class="modifier-option-name">${opt.name}</span>
+                                                ${opt.price > 0 ? `<span class="modifier-option-price">+$${opt.price.toFixed(2)}</span>` : ''}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="modifier-actions">
+                        <button class="modifier-cancel">Cancel</button>
+                        <button class="modifier-add">Add to Order</button>
+                    </div>
+                </div>
+            `;
+
+            // Bind option clicks
+            overlay.querySelectorAll('.modifier-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modIdx = parseInt(btn.dataset.modIdx);
+                    const optIdx = parseInt(btn.dataset.optIdx);
+                    const isRequired = btn.dataset.required === 'true';
+                    const mod = product.modifiers[modIdx];
+                    const opt = mod.options[optIdx];
+
+                    if (isRequired) {
+                        // Single select for required
+                        selections[modIdx] = [opt];
+                    } else {
+                        // Toggle for optional
+                        const existing = selections[modIdx].findIndex(s => s.name === opt.name);
+                        if (existing >= 0) {
+                            selections[modIdx].splice(existing, 1);
+                        } else {
+                            selections[modIdx].push(opt);
+                        }
+                    }
+                    renderModal();
+                });
+            });
+
+            // Cancel button
+            overlay.querySelector('.modifier-cancel').addEventListener('click', () => {
+                overlay.remove();
+            });
+
+            // Add button
+            overlay.querySelector('.modifier-add').addEventListener('click', () => {
+                const allSelected = Object.values(selections).flat();
+                overlay.remove();
+                this.addToCart(product.id, allSelected);
+            });
+        };
+
+        renderModal();
+        screen.appendChild(overlay);
+    }
+
+    removeFromCart(cartItemId) {
+        const index = this.cart.findIndex(item => item.id === cartItemId);
         if (index !== -1) {
             if (this.cart[index].qty > 1) {
                 this.cart[index].qty -= 1;
@@ -419,6 +589,13 @@ class POSSimulator {
             }
         }
         this.updateCartDisplay();
+    }
+
+    getProductCartCount(productId) {
+        // Count all cart items for a given product (regardless of modifiers)
+        return this.cart
+            .filter(item => item.productId === productId || item.id === productId)
+            .reduce((sum, item) => sum + item.qty, 0);
     }
 
     updateCartDisplay() {
